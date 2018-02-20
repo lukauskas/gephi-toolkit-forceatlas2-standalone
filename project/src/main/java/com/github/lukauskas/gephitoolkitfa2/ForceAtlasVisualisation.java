@@ -125,14 +125,6 @@ public class ForceAtlasVisualisation {
         AutoLayout autoLayout = new AutoLayout(this.duration_seconds, TimeUnit.SECONDS);
         autoLayout.setGraphModel(graphModel);
 
-        System.out.println("Scaling: " + this.scale);
-        System.out.println("Gravity: " + this.gravity);
-        System.out.println("Theta: " + this.barnes_hut_theta);
-        System.out.println("Jitter tolerance: " + this.jitter_tolerance);
-        System.out.println("Lin-log mode: "+ this.lin_log_mode);
-        System.out.println("Edge weight influence: " + this.edge_weight_influence);
-        System.out.println("Strong gravity: " + this.strong_gravity);
-        System.out.println("Threads: " + this.threads);
 
         ForceAtlas2 fa2 = new ForceAtlas2Builder().buildLayout();
         fa2.setScalingRatio(this.scale);
@@ -149,10 +141,21 @@ public class ForceAtlasVisualisation {
         fa2.setAdjustSizes(Boolean.FALSE);
 
 
+        System.out.println("Scaling: " + fa2.getScalingRatio());
+        System.out.println("Gravity: " + fa2.getGravity());
+        System.out.println("Theta: " + fa2.getBarnesHutTheta());
+        System.out.println("Jitter tolerance: " + fa2.getJitterTolerance());
+        System.out.println("Lin-log mode: "+ fa2.isLinLogMode());
+        System.out.println("Edge weight influence: " + fa2.getEdgeWeightInfluence());
+        System.out.println("Strong gravity: " + fa2.isStrongGravityMode());
+        System.out.println("Threads: " + fa2.getThreadsCount());
+
+
         AutoLayout.DynamicProperty barnesHutProperty = AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name", Boolean.FALSE, this.fast_proportion);
         AutoLayout.DynamicProperty adjustSizesProperty = AutoLayout.createDynamicProperty("forceAtlas2.AdjustSizes.name", Boolean.TRUE, this.fast_proportion);
 
         autoLayout.addLayout(fa2, 1.0f, new AutoLayout.DynamicProperty[]{barnesHutProperty, adjustSizesProperty});
+        
         autoLayout.execute();
 
         fa2.endAlgo();
