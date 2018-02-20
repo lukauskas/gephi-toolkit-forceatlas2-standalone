@@ -7,7 +7,7 @@ WORKDIR /project
 RUN ["mvn", "verify", "clean", "--fail-never"]
 
 COPY project/src /project/src
-RUN mvn package
+RUN mvn -o package
 
 VOLUME /output
 VOLUME /input
