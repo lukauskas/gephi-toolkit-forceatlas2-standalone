@@ -139,6 +139,8 @@ public class ForceAtlasVisualisation {
 
         fa2.setBarnesHutOptimize(Boolean.TRUE);
         fa2.setAdjustSizes(Boolean.FALSE);
+        
+        fa2.initAlgo();
 
 
         System.out.println("Scaling: " + fa2.getScalingRatio());
@@ -155,7 +157,7 @@ public class ForceAtlasVisualisation {
         AutoLayout.DynamicProperty adjustSizesProperty = AutoLayout.createDynamicProperty("forceAtlas2.AdjustSizes.name", Boolean.TRUE, this.fast_proportion);
 
         autoLayout.addLayout(fa2, 1.0f, new AutoLayout.DynamicProperty[]{barnesHutProperty, adjustSizesProperty});
-        
+
         autoLayout.execute();
 
         fa2.endAlgo();
