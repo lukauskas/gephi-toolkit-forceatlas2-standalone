@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.gephi.graph.api.DirectedGraph;
 import org.gephi.graph.api.GraphController;
@@ -127,36 +129,66 @@ public class ForceAtlasVisualisation {
 
 
         ForceAtlas2 fa2 = new ForceAtlas2Builder().buildLayout();
-        fa2.setScalingRatio(this.scale);
-        fa2.setGravity(this.gravity);
-        fa2.setBarnesHutTheta(this.barnes_hut_theta);
-        fa2.setJitterTolerance(this.jitter_tolerance);
-        fa2.setLinLogMode(this.lin_log_mode);
-        fa2.setEdgeWeightInfluence(this.edge_weight_influence);
-        fa2.setStrongGravityMode(this.strong_gravity);
+
         fa2.setThreadsCount(this.threads);
 
 
         fa2.setBarnesHutOptimize(Boolean.TRUE);
         fa2.setAdjustSizes(Boolean.FALSE);
-        
-        fa2.initAlgo();
+
+        System.out.println("Scaling: " + this.scale);
+        System.out.println("Gravity: " + this.gravity);
+        System.out.println("Theta: " + this.barnes_hut_theta);
+        System.out.println("Jitter tolerance: " + this.jitter_tolerance);
+        System.out.println("Lin-log mode: "+ this.lin_log_mode);
+        System.out.println("Edge weight influence: " + this.edge_weight_influence);
+        System.out.println("Strong gravity: " + this.strong_gravity);
+        System.out.println("Threads: " + this.threads);
 
 
-        System.out.println("Scaling: " + fa2.getScalingRatio());
-        System.out.println("Gravity: " + fa2.getGravity());
-        System.out.println("Theta: " + fa2.getBarnesHutTheta());
-        System.out.println("Jitter tolerance: " + fa2.getJitterTolerance());
-        System.out.println("Lin-log mode: "+ fa2.isLinLogMode());
-        System.out.println("Edge weight influence: " + fa2.getEdgeWeightInfluence());
-        System.out.println("Strong gravity: " + fa2.isStrongGravityMode());
-        System.out.println("Threads: " + fa2.getThreadsCount());
+        // property setting inspired by: https://github.com/civisanalytics/GephiForceDiagramTool/blob/master/src/main/java/com/civisanalytics/gephi/GephiForceDiagram.java
+
+        List<AutoLayout.DynamicProperty> properties
+                = new ArrayList<AutoLayout.DynamicProperty>();
+
+        // Barnes-Hut optimisation gets turned off, adjust sizes turned on after fast proportion.
+        properties.add(AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name",
+                                                        Boolean.FALSE, this.fast_proportion));
+        properties.add(AutoLayout.createDynamicProperty("forceAtlas2.AdjustSizes.name",
+                                                         Boolean.TRUE, this.fast_proportion));
 
 
-        AutoLayout.DynamicProperty barnesHutProperty = AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name", Boolean.FALSE, this.fast_proportion);
-        AutoLayout.DynamicProperty adjustSizesProperty = AutoLayout.createDynamicProperty("forceAtlas2.AdjustSizes.name", Boolean.TRUE, this.fast_proportion);
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.scalingRatio.name", this.scale, 0.0f)
+        );
 
-        autoLayout.addLayout(fa2, 1.0f, new AutoLayout.DynamicProperty[]{barnesHutProperty, adjustSizesProperty});
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.gravity.name", this.gravity, 0.0f)
+        );
+
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.barnesHutTheta.name", this.barnes_hut_theta, 0.0f)
+        );
+
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.jitterTolerance.name", this.jitter_tolerance, 0.0f)
+        );
+
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.linLogMode.name", this.lin_log_mode, 0.0f)
+        );
+
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.edgeWeightInfluence.name", this.edge_weight_influence, 0.0f)
+        );
+
+        properties.add(AutoLayout.createDynamicProperty(
+                "ForceAtlas2.strongGravityMode.name", this.strong_gravity, 0.0f)
+        );
+
+
+        autoLayout.addLayout(fa2, 1.0f, properties.toArray(new AutoLayout
+                .DynamicProperty[properties.size()]));
 
         autoLayout.execute();
 
