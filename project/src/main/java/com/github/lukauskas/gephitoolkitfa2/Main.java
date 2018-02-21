@@ -22,10 +22,16 @@ package com.github.lukauskas.gephitoolkitfa2;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.gephi.preview.api.PreviewProperty;
+import org.gephi.preview.types.EdgeColor;
 
+enum EdgeColors {
+    SOURCE, TARGET, MIXED, ORIGINAL
+}
 public class Main {
 
     public static void main(String[] args) {
@@ -33,29 +39,44 @@ public class Main {
         ArgumentParser parser = ArgumentParsers.newFor("Main").build()
                 .defaultHelp(true)
                 .description("Create ForceAtlas2 visualisation for graph.");
-        parser.addArgument("--gravity").type(Double.class).setDefault(1.0)
-                 .help("Gravity parameter of ForceAtlas2");
-        parser.addArgument("--scale").type(Double.class).setDefault(10.0)
-                .help("Scale parameter of ForceAtlas2");
 
-        parser.addArgument("--theta").type(Double.class).setDefault(1.2);
-        parser.addArgument("--tolerance").type(Double.class).setDefault(1.0);
-        parser.addArgument("--linlog").type(Boolean.class).setDefault(Boolean.FALSE);
-        parser.addArgument("--weightinfluence").type(Double.class).setDefault(1.0);
-        parser.addArgument("--stronggravity").type(Boolean.class).setDefault(Boolean.FALSE);
-        parser.addArgument("--threads").type(Integer.class).setDefault(7);
-
-        parser.addArgument("--duration").type(Integer.class).setDefault(60)
-                .help("Duration in seconds to run the algorithm for");
-        parser.addArgument("--proportion").type(Float.class).setDefault(0.8f)
-                .help("Proportion of time to allocate for fast ForceAtlas2." +
-                        "The rest is allocated for slow, no-overlap fa2");
         parser.addArgument("-O", "--outdir").type(Arguments.fileType().verifyIsDirectory().verifyCanWrite())
                 .setDefault(".")
                 .help("Output directory");
 
         parser.addArgument("input_file").type(Arguments.fileType().acceptSystemIn().verifyCanRead())
                 .help("File to create visualisation for");
+
+        ArgumentGroup layout_group = parser.addArgumentGroup("Layout options");
+
+
+        layout_group.addArgument("--gravity").type(Double.class).setDefault(1.0)
+                 .help("Gravity parameter of ForceAtlas2");
+        layout_group.addArgument("--scale").type(Double.class).setDefault(10.0)
+                .help("Scale parameter of ForceAtlas2");
+
+        layout_group.addArgument("--theta").type(Double.class).setDefault(1.2);
+        layout_group.addArgument("--tolerance").type(Double.class).setDefault(1.0);
+        layout_group.addArgument("--linlog").type(Arguments.booleanType()).setDefault(Boolean.FALSE);
+        layout_group.addArgument("--weightinfluence").type(Double.class).setDefault(1.0);
+        layout_group.addArgument("--stronggravity").type(Arguments.booleanType()).setDefault(Boolean.FALSE);
+        layout_group.addArgument("--threads").type(Integer.class).setDefault(7);
+
+        ArgumentGroup autolayout_group = parser.addArgumentGroup("Autolayout options");
+
+        autolayout_group.addArgument("--duration").type(Integer.class).setDefault(60)
+                .help("Duration in seconds to run the algorithm for");
+        autolayout_group.addArgument("--proportion").type(Float.class).setDefault(0.8f)
+                .help("Proportion of time to allocate for fast ForceAtlas2." +
+                        "The rest is allocated for slow, no-overlap fa2");
+
+
+        ArgumentGroup visualisation_group = parser.addArgumentGroup("Visualisation options");
+        visualisation_group.addArgument("--straight").type(Arguments.booleanType()).setDefault(Boolean.FALSE)
+                .help("Draw straight edges");
+
+        visualisation_group.addArgument("--edgecolor").type(EdgeColors.class).setDefault(EdgeColors.SOURCE)
+                .help("Edge color mode");
 
 
         Namespace ns = null;
@@ -84,10 +105,21 @@ public class Main {
         Boolean strong_gravity = ns.getBoolean("stronggravity");
         Integer threads = ns.getInt("threads");
 
+        Boolean curved_edges = !ns.getBoolean("straight");
+
+
+        EdgeColors selected_color = (EdgeColors) ns.get("edgecolor");
+
+        EdgeColor.Mode edge_color = null;
+        if (selected_color == EdgeColors.MIXED) edge_color = EdgeColor.Mode.MIXED;
+        else if (selected_color == EdgeColors.ORIGINAL) edge_color = EdgeColor.Mode.ORIGINAL;
+        else if (selected_color == EdgeColors.SOURCE) edge_color = EdgeColor.Mode.SOURCE;
+        else if (selected_color == EdgeColors.TARGET) edge_color = EdgeColor.Mode.TARGET;
+
         ForceAtlasVisualisation autoLayout = new ForceAtlasVisualisation(input_file, output_directory,
                 gravity, scale, barnes_hut_theta, jitter_tolerance, lin_log_mode, edge_weight_influence,
                 strong_gravity, threads,
-                duration_seconds, fast_proportion);
+                duration_seconds, fast_proportion, curved_edges, new EdgeColor(edge_color));
         autoLayout.script();
 
     }

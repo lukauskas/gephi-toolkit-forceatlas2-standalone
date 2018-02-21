@@ -50,6 +50,7 @@ import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
+import org.gephi.preview.types.EdgeColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
@@ -73,12 +74,19 @@ public class ForceAtlasVisualisation {
     private Integer duration_seconds;
     private Float fast_proportion;
 
+    private Boolean curved_edges;
+
+    private EdgeColor edge_color;
+
 
     public ForceAtlasVisualisation(String input_file, String output_directory, Double gravity, Double scale,
                                    Double barnes_hut_theta, Double jitter_tolerance, Boolean lin_log_mode,
                                    Double edge_weight_influence,
                                    Boolean strong_gravity, Integer threads,
-                                   Integer duration_seconds, Float fast_proportion) {
+                                   Integer duration_seconds,
+                                   Float fast_proportion,
+                                   Boolean curved_edges,
+                                   EdgeColor edge_color) {
         this.input_file = input_file;
         this.output_directory = output_directory;
         this.gravity = gravity;
@@ -91,6 +99,8 @@ public class ForceAtlasVisualisation {
         this.threads = threads;
         this.duration_seconds = duration_seconds;
         this.fast_proportion = fast_proportion;
+        this.curved_edges = curved_edges;
+        this.edge_color = edge_color;
     }
 
     public void script() {
@@ -196,10 +206,12 @@ public class ForceAtlasVisualisation {
 
         System.out.println("Layout finished");
 
-        //Set 'show labels' option in Preview - and disable node size influence on text size
         PreviewModel previewModel = Lookup.getDefault().lookup(PreviewController.class).getModel();
         previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
         previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, Boolean.FALSE);
+
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, this.curved_edges);
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_COLOR, this.edge_color);
 
         //Export
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
