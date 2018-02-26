@@ -255,5 +255,16 @@ public class ForceAtlasVisualisation {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
+        // Disable labels and re-export
+        previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
+        previewModel.getProperties().putValue(PreviewProperty.SHOW_EDGE_LABELS, Boolean.FALSE);
+
+        try {
+            ec.exportFile(new File(this.output_directory, basename + ".nolabels.pdf"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
     }
 }
