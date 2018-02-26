@@ -47,6 +47,8 @@ import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
+import org.gephi.layout.plugin.labelAdjust.LabelAdjust;
+import org.gephi.layout.plugin.labelAdjust.LabelAdjustBuilder;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
@@ -197,8 +199,12 @@ public class ForceAtlasVisualisation {
         );
 
 
-        autoLayout.addLayout(fa2, 1.0f, properties.toArray(new AutoLayout
+        autoLayout.addLayout(fa2, 0.8f, properties.toArray(new AutoLayout
                 .DynamicProperty[properties.size()]));
+
+        LabelAdjust la = new LabelAdjustBuilder().buildLayout();
+
+        autoLayout.addLayout(la, 0.2f);
 
         autoLayout.execute();
 
