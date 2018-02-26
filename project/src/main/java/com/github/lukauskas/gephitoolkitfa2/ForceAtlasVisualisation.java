@@ -80,6 +80,9 @@ public class ForceAtlasVisualisation {
     private EdgeColor edge_color;
     private Float labeladjust_ratio;
 
+    private Boolean rescale_weights;
+    private Float max_thickness;
+
 
     public ForceAtlasVisualisation(String input_file, String output_directory, Double gravity, Double scale,
                                    Double barnes_hut_theta, Double jitter_tolerance, Boolean lin_log_mode,
@@ -89,7 +92,9 @@ public class ForceAtlasVisualisation {
                                    Float fast_proportion,
                                    Boolean curved_edges,
                                    EdgeColor edge_color,
-                                   Float labeladjust_ratio) {
+                                   Float labeladjust_ratio,
+                                   Boolean rescale_weights,
+                                   Float max_thickness) {
         this.input_file = input_file;
         this.output_directory = output_directory;
         this.gravity = gravity;
@@ -105,6 +110,8 @@ public class ForceAtlasVisualisation {
         this.curved_edges = curved_edges;
         this.edge_color = edge_color;
         this.labeladjust_ratio = labeladjust_ratio;
+        this.rescale_weights = rescale_weights;
+        this.max_thickness = max_thickness;
     }
 
     public void script() {
@@ -229,6 +236,10 @@ public class ForceAtlasVisualisation {
 
         previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, this.curved_edges);
         previewModel.getProperties().putValue(PreviewProperty.EDGE_COLOR, this.edge_color);
+
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, this.rescale_weights);
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_THICKNESS, this.max_thickness);
+
 
         //Export
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);

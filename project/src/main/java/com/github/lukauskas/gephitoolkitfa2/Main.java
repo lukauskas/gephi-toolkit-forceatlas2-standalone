@@ -79,6 +79,10 @@ public class Main {
 
         visualisation_group.addArgument("--edgecolor").type(EdgeColors.class).setDefault(EdgeColors.SOURCE)
                 .help("Edge color mode");
+        visualisation_group.addArgument("--rescaleweights").type(Arguments.booleanType()).setDefault(Boolean.TRUE)
+                .help("If set to true, weights will be rescaled during visualisation");
+        visualisation_group.addArgument("--maxweight").type(Float.class).setDefault(20.0f)
+                .help("Maximum weight to rescale to");
 
 
         Namespace ns = null;
@@ -113,6 +117,8 @@ public class Main {
         EdgeColors selected_color = (EdgeColors) ns.get("edgecolor");
 
         Float labeladjust_ratio = ns.getFloat("labeladjustratio");
+        Boolean rescale_weights = ns.getBoolean("rescaleweights");
+        Float max_weight = ns.getFloat("maxweight");
 
         EdgeColor.Mode edge_color = null;
         if (selected_color == EdgeColors.MIXED) edge_color = EdgeColor.Mode.MIXED;
@@ -123,7 +129,8 @@ public class Main {
         ForceAtlasVisualisation autoLayout = new ForceAtlasVisualisation(input_file, output_directory,
                 gravity, scale, barnes_hut_theta, jitter_tolerance, lin_log_mode, edge_weight_influence,
                 strong_gravity, threads,
-                duration_seconds, fast_proportion, curved_edges, new EdgeColor(edge_color), labeladjust_ratio);
+                duration_seconds, fast_proportion, curved_edges, new EdgeColor(edge_color), labeladjust_ratio,
+                rescale_weights, max_weight);
         autoLayout.script();
 
     }
