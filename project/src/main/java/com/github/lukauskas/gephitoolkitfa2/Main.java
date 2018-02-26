@@ -69,6 +69,8 @@ public class Main {
         autolayout_group.addArgument("--proportion").type(Float.class).setDefault(0.8f)
                 .help("Proportion of time to allocate for fast ForceAtlas2." +
                         "The rest is allocated for slow, no-overlap fa2");
+        autolayout_group.addArgument("--labeladjustratio").type(Float.class).setDefault(0.2f)
+                .help("Proportion of time allocated to LabelAdjust algorithm");
 
 
         ArgumentGroup visualisation_group = parser.addArgumentGroup("Visualisation options");
@@ -110,6 +112,8 @@ public class Main {
 
         EdgeColors selected_color = (EdgeColors) ns.get("edgecolor");
 
+        Float labeladjust_ratio = ns.getFloat("labeladjustratio");
+
         EdgeColor.Mode edge_color = null;
         if (selected_color == EdgeColors.MIXED) edge_color = EdgeColor.Mode.MIXED;
         else if (selected_color == EdgeColors.ORIGINAL) edge_color = EdgeColor.Mode.ORIGINAL;
@@ -119,7 +123,7 @@ public class Main {
         ForceAtlasVisualisation autoLayout = new ForceAtlasVisualisation(input_file, output_directory,
                 gravity, scale, barnes_hut_theta, jitter_tolerance, lin_log_mode, edge_weight_influence,
                 strong_gravity, threads,
-                duration_seconds, fast_proportion, curved_edges, new EdgeColor(edge_color));
+                duration_seconds, fast_proportion, curved_edges, new EdgeColor(edge_color), labeladjust_ratio);
         autoLayout.script();
 
     }

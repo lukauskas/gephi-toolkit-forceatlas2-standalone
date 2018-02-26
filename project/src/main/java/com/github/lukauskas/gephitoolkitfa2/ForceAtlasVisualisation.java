@@ -79,6 +79,7 @@ public class ForceAtlasVisualisation {
     private Boolean curved_edges;
 
     private EdgeColor edge_color;
+    private Float labeladjust_ratio;
 
 
     public ForceAtlasVisualisation(String input_file, String output_directory, Double gravity, Double scale,
@@ -88,7 +89,8 @@ public class ForceAtlasVisualisation {
                                    Integer duration_seconds,
                                    Float fast_proportion,
                                    Boolean curved_edges,
-                                   EdgeColor edge_color) {
+                                   EdgeColor edge_color,
+                                   Float labeladjust_ratio) {
         this.input_file = input_file;
         this.output_directory = output_directory;
         this.gravity = gravity;
@@ -103,6 +105,7 @@ public class ForceAtlasVisualisation {
         this.fast_proportion = fast_proportion;
         this.curved_edges = curved_edges;
         this.edge_color = edge_color;
+        this.labeladjust_ratio = labeladjust_ratio;
     }
 
     public void script() {
@@ -199,12 +202,13 @@ public class ForceAtlasVisualisation {
         );
 
 
-        autoLayout.addLayout(fa2, 0.8f, properties.toArray(new AutoLayout
+        autoLayout.addLayout(fa2, 1-this.labeladjust_ratio,
+                properties.toArray(new AutoLayout
                 .DynamicProperty[properties.size()]));
 
         LabelAdjust la = new LabelAdjustBuilder().buildLayout();
 
-        autoLayout.addLayout(la, 0.2f);
+        autoLayout.addLayout(la, this.labeladjust_ratio);
 
         autoLayout.execute();
 
