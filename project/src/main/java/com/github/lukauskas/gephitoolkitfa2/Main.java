@@ -69,7 +69,7 @@ public class Main {
         autolayout_group.addArgument("--proportion").type(Float.class).setDefault(0.8f)
                 .help("Proportion of time to allocate for fast ForceAtlas2." +
                         "The rest is allocated for slow, no-overlap fa2");
-        autolayout_group.addArgument("--labeladjustratio").type(Float.class).setDefault(0.2f)
+        autolayout_group.addArgument("--labeladjustratio").type(Float.class).setDefault(0.04f)
                 .help("Proportion of time allocated to LabelAdjust algorithm");
 
 

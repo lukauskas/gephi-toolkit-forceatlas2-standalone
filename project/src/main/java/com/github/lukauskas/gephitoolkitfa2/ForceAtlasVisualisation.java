@@ -32,9 +32,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.gephi.graph.api.DirectedGraph;
-import org.gephi.graph.api.GraphController;
-import org.gephi.graph.api.GraphModel;
+
+import org.gephi.graph.api.*;
 import org.gephi.io.exporter.api.ExportController;
 import org.gephi.io.generator.plugin.RandomGraph;
 import org.gephi.io.importer.api.Container;
@@ -138,6 +137,14 @@ public class ForceAtlasVisualisation {
         System.out.println("Nodes: " + graph.getNodeCount());
         System.out.println("Edges: " + graph.getEdgeCount());
 
+        //Prepare text properties so that LabelAdjust works
+        // see https://github.com/gephi/gephi/issues/564
+        for (Node n : graphModel.getGraph().getNodes()) {
+            TextProperties textProperties = n.getTextProperties();
+            String label = n.getLabel();
+            textProperties.setText(label);
+            textProperties.setDimensions(label.length()*6, 15);
+        }
 
         AutoLayout autoLayout = new AutoLayout(this.duration_seconds, TimeUnit.SECONDS);
         autoLayout.setGraphModel(graphModel);
