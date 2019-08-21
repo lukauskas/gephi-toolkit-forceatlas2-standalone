@@ -74,9 +74,14 @@ public class ForceAtlasVisualisation {
     private Integer duration_seconds;
     private Float fast_proportion;
 
+    private Boolean plot;
     private Boolean curved_edges;
 
     private EdgeColor edge_color;
+
+    private Boolean rescale_edge_weight;
+    private Float min_weight;
+    private Float max_weight;
 
 
     public ForceAtlasVisualisation(String input_file, String output_directory, Double gravity, Double scale,
@@ -85,7 +90,11 @@ public class ForceAtlasVisualisation {
                                    Boolean strong_gravity, Integer threads,
                                    Integer duration_seconds,
                                    Float fast_proportion,
+                                   Boolean plot,
                                    Boolean curved_edges,
+                                   Boolean rescale_edge_weight,
+                                   Float min_weight,
+                                   Float max_weight,
                                    EdgeColor edge_color) {
         this.input_file = input_file;
         this.output_directory = output_directory;
@@ -99,8 +108,13 @@ public class ForceAtlasVisualisation {
         this.threads = threads;
         this.duration_seconds = duration_seconds;
         this.fast_proportion = fast_proportion;
+        this.plot = plot;
         this.curved_edges = curved_edges;
         this.edge_color = edge_color;
+
+        this.rescale_edge_weight = rescale_edge_weight;
+        this.min_weight = min_weight;
+        this.max_weight = max_weight;
     }
 
     public void script() {
@@ -122,6 +136,8 @@ public class ForceAtlasVisualisation {
         }
 
         String basename = file.getName();
+        // Copy-pasting from stack-overflow FTW.
+        basename = basename.substring(0, basename.lastIndexOf('.'));
 
 
         //Append container to graph structure
@@ -133,99 +149,118 @@ public class ForceAtlasVisualisation {
         System.out.println("Nodes: " + graph.getNodeCount());
         System.out.println("Edges: " + graph.getEdgeCount());
 
+        if (this.duration_seconds > 0) {
 
-        AutoLayout autoLayout = new AutoLayout(this.duration_seconds, TimeUnit.SECONDS);
-        autoLayout.setGraphModel(graphModel);
-
-
-        ForceAtlas2 fa2 = new ForceAtlas2Builder().buildLayout();
-
-        fa2.setThreadsCount(this.threads);
+            AutoLayout autoLayout = new AutoLayout(this.duration_seconds, TimeUnit.SECONDS);
+            autoLayout.setGraphModel(graphModel);
 
 
-        fa2.setBarnesHutOptimize(Boolean.TRUE);
-        fa2.setAdjustSizes(Boolean.FALSE);
+            ForceAtlas2 fa2 = new ForceAtlas2Builder().buildLayout();
 
-        System.out.println("Scaling: " + this.scale);
-        System.out.println("Gravity: " + this.gravity);
-        System.out.println("Theta: " + this.barnes_hut_theta);
-        System.out.println("Jitter tolerance: " + this.jitter_tolerance);
-        System.out.println("Lin-log mode: "+ this.lin_log_mode);
-        System.out.println("Edge weight influence: " + this.edge_weight_influence);
-        System.out.println("Strong gravity: " + this.strong_gravity);
-        System.out.println("Threads: " + this.threads);
+            fa2.setThreadsCount(this.threads);
 
 
-        // property setting inspired by: https://github.com/civisanalytics/GephiForceDiagramTool/blob/master/src/main/java/com/civisanalytics/gephi/GephiForceDiagram.java
+            fa2.setBarnesHutOptimize(Boolean.TRUE);
+            fa2.setAdjustSizes(Boolean.FALSE);
 
-        List<AutoLayout.DynamicProperty> properties
-                = new ArrayList<AutoLayout.DynamicProperty>();
-
-        // Barnes-Hut optimisation gets turned off, adjust sizes turned on after fast proportion.
-        properties.add(AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name",
-                                                        Boolean.FALSE, this.fast_proportion));
-        properties.add(AutoLayout.createDynamicProperty("forceAtlas2.AdjustSizes.name",
-                                                         Boolean.TRUE, this.fast_proportion));
-
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.scalingRatio.name", this.scale, 0.0f)
-        );
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.gravity.name", this.gravity, 0.0f)
-        );
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.barnesHutTheta.name", this.barnes_hut_theta, 0.0f)
-        );
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.jitterTolerance.name", this.jitter_tolerance, 0.0f)
-        );
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.linLogMode.name", this.lin_log_mode, 0.0f)
-        );
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.edgeWeightInfluence.name", this.edge_weight_influence, 0.0f)
-        );
-
-        properties.add(AutoLayout.createDynamicProperty(
-                "ForceAtlas2.strongGravityMode.name", this.strong_gravity, 0.0f)
-        );
+            System.out.println("Scaling: " + this.scale);
+            System.out.println("Gravity: " + this.gravity);
+            System.out.println("Theta: " + this.barnes_hut_theta);
+            System.out.println("Jitter tolerance: " + this.jitter_tolerance);
+            System.out.println("Lin-log mode: " + this.lin_log_mode);
+            System.out.println("Edge weight influence: " + this.edge_weight_influence);
+            System.out.println("Strong gravity: " + this.strong_gravity);
+            System.out.println("Threads: " + this.threads);
 
 
-        autoLayout.addLayout(fa2, 1.0f, properties.toArray(new AutoLayout
-                .DynamicProperty[properties.size()]));
+            // property setting inspired by: https://github.com/civisanalytics/GephiForceDiagramTool/blob/master/src/main/java/com/civisanalytics/gephi/GephiForceDiagram.java
 
-        autoLayout.execute();
+            List<AutoLayout.DynamicProperty> properties
+                    = new ArrayList<AutoLayout.DynamicProperty>();
 
-        fa2.endAlgo();
+            // Barnes-Hut optimisation gets turned off, adjust sizes turned on after fast proportion.
+            properties.add(AutoLayout.createDynamicProperty("forceAtlas2.barnesHutOptimization.name",
+                    Boolean.FALSE, this.fast_proportion));
+            properties.add(AutoLayout.createDynamicProperty("forceAtlas2.AdjustSizes.name",
+                    Boolean.TRUE, this.fast_proportion));
 
-        System.out.println("Layout finished");
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.scalingRatio.name", this.scale, 0.0f)
+            );
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.gravity.name", this.gravity, 0.0f)
+            );
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.barnesHutTheta.name", this.barnes_hut_theta, 0.0f)
+            );
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.jitterTolerance.name", this.jitter_tolerance, 0.0f)
+            );
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.linLogMode.name", this.lin_log_mode, 0.0f)
+            );
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.edgeWeightInfluence.name", this.edge_weight_influence, 0.0f)
+            );
+
+            properties.add(AutoLayout.createDynamicProperty(
+                    "ForceAtlas2.strongGravityMode.name", this.strong_gravity, 0.0f)
+            );
+
+
+            autoLayout.addLayout(fa2, 1.0f, properties.toArray(new AutoLayout
+                    .DynamicProperty[properties.size()]));
+
+            autoLayout.execute();
+
+            fa2.endAlgo();
+
+            System.out.println("Layout finished");
+        }
 
         PreviewModel previewModel = Lookup.getDefault().lookup(PreviewController.class).getModel();
-        previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
         previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, Boolean.FALSE);
 
         previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, this.curved_edges);
         previewModel.getProperties().putValue(PreviewProperty.EDGE_COLOR, this.edge_color);
 
-        //Export
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, this.rescale_edge_weight);
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_RESCALE_WEIGHT_MIN, this.min_weight);
+        previewModel.getProperties().putValue(PreviewProperty.EDGE_RESCALE_WEIGHT_MAX, this.max_weight);
+
+        previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
+
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
-
         try {
-            ec.exportFile(new File(this.output_directory, basename + ".pdf"));
+            ec.exportFile(new File(this.output_directory, basename + ".gephi.gexf"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-        try {
-            ec.exportFile(new File(this.output_directory, basename + ".gexf"));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if (this.plot) {
+            //Export
+            try {
+                ec.exportFile(new File(this.output_directory, basename + ".pdf"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            // export (without labels)
+            previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
+            try {
+                ec.exportFile(new File(this.output_directory, basename + ".nolabels.pdf"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
+
+
+
     }
 }

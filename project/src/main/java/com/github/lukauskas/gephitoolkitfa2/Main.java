@@ -65,15 +65,26 @@ public class Main {
         ArgumentGroup autolayout_group = parser.addArgumentGroup("Autolayout options");
 
         autolayout_group.addArgument("--duration").type(Integer.class).setDefault(60)
-                .help("Duration in seconds to run the algorithm for");
+                .help("Duration in seconds to run the algorithm for. Layout will not run if set to zero.");
         autolayout_group.addArgument("--proportion").type(Float.class).setDefault(0.8f)
                 .help("Proportion of time to allocate for fast ForceAtlas2." +
                         "The rest is allocated for slow, no-overlap fa2");
 
 
         ArgumentGroup visualisation_group = parser.addArgumentGroup("Visualisation options");
+        visualisation_group.addArgument("--plot").type(Arguments.booleanType()).setDefault(Boolean.TRUE)
+                .help("Whether to produce a plot");
         visualisation_group.addArgument("--straight").type(Arguments.booleanType()).setDefault(Boolean.FALSE)
                 .help("Draw straight edges");
+
+        visualisation_group.addArgument("--rescaleedgeweight").type(Arguments.booleanType()).setDefault(Boolean.FALSE)
+                .help("If set to true, edge weight is rescaled");
+        visualisation_group.addArgument("--minweight").type(Float.class).setDefault(1.0f).help(
+                "Minimum weight of edge after rescaling, if rescaling is set."
+        );
+        visualisation_group.addArgument("--maxweight").type(Float.class).setDefault(10.0f).help(
+                "Maximum weight of edge after rescaling, if rescaling is set."
+        );
 
         visualisation_group.addArgument("--edgecolor").type(EdgeColors.class).setDefault(EdgeColors.SOURCE)
                 .help("Edge color mode");
@@ -106,9 +117,13 @@ public class Main {
         Integer threads = ns.getInt("threads");
 
         Boolean curved_edges = !ns.getBoolean("straight");
-
+        Boolean plot = ns.getBoolean("plot");
 
         EdgeColors selected_color = (EdgeColors) ns.get("edgecolor");
+
+        Boolean rescale_edge_weight = ns.getBoolean("rescaleedgeweight");
+        Float min_weight = ns.getFloat("minweight");
+        Float max_weight = ns.getFloat("maxweight");
 
         EdgeColor.Mode edge_color = null;
         if (selected_color == EdgeColors.MIXED) edge_color = EdgeColor.Mode.MIXED;
@@ -119,7 +134,13 @@ public class Main {
         ForceAtlasVisualisation autoLayout = new ForceAtlasVisualisation(input_file, output_directory,
                 gravity, scale, barnes_hut_theta, jitter_tolerance, lin_log_mode, edge_weight_influence,
                 strong_gravity, threads,
-                duration_seconds, fast_proportion, curved_edges, new EdgeColor(edge_color));
+                duration_seconds, fast_proportion,
+                plot,
+                curved_edges,
+                rescale_edge_weight,
+                min_weight,
+                max_weight,
+                new EdgeColor(edge_color));
         autoLayout.script();
 
     }
