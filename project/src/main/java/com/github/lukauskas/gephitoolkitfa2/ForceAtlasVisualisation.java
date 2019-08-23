@@ -83,6 +83,8 @@ public class ForceAtlasVisualisation {
     private Float min_weight;
     private Float max_weight;
 
+    private Float node_border_width;
+
 
     public ForceAtlasVisualisation(String input_file, String output_directory, Double gravity, Double scale,
                                    Double barnes_hut_theta, Double jitter_tolerance, Boolean lin_log_mode,
@@ -95,7 +97,8 @@ public class ForceAtlasVisualisation {
                                    Boolean rescale_edge_weight,
                                    Float min_weight,
                                    Float max_weight,
-                                   EdgeColor edge_color) {
+                                   EdgeColor edge_color,
+                                   Float node_border_width) {
         this.input_file = input_file;
         this.output_directory = output_directory;
         this.gravity = gravity;
@@ -115,6 +118,7 @@ public class ForceAtlasVisualisation {
         this.rescale_edge_weight = rescale_edge_weight;
         this.min_weight = min_weight;
         this.max_weight = max_weight;
+        this.node_border_width = node_border_width;
     }
 
     public void script() {
@@ -235,6 +239,8 @@ public class ForceAtlasVisualisation {
         previewModel.getProperties().putValue(PreviewProperty.EDGE_RESCALE_WEIGHT_MAX, this.max_weight);
 
         previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
+
+        previewModel.getProperties().putValue(PreviewProperty.NODE_BORDER_WIDTH, this.node_border_width);
 
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
         try {

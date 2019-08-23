@@ -89,6 +89,8 @@ public class Main {
         visualisation_group.addArgument("--edgecolor").type(EdgeColors.class).setDefault(EdgeColors.SOURCE)
                 .help("Edge color mode");
 
+        visualisation_group.addArgument("--nodeborderwidth").type(Float.class).setDefault(0.0f)
+                .help("Node border width");
 
         Namespace ns = null;
         try {
@@ -125,6 +127,8 @@ public class Main {
         Float min_weight = ns.getFloat("minweight");
         Float max_weight = ns.getFloat("maxweight");
 
+        Float node_border_width = ns.getFloat("nodeborderwidth");
+
         EdgeColor.Mode edge_color = null;
         if (selected_color == EdgeColors.MIXED) edge_color = EdgeColor.Mode.MIXED;
         else if (selected_color == EdgeColors.ORIGINAL) edge_color = EdgeColor.Mode.ORIGINAL;
@@ -140,7 +144,8 @@ public class Main {
                 rescale_edge_weight,
                 min_weight,
                 max_weight,
-                new EdgeColor(edge_color));
+                new EdgeColor(edge_color),
+                node_border_width);
         autoLayout.script();
 
     }
